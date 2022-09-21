@@ -205,22 +205,25 @@ class MinesweeperAI():
         # discover mines and safes if possible
         for sentence in self.knowledge:
             while(len(sentence.known_safes()) > 0):
-                safe = sentence.known_safes().pop()
-                self.mark_safe(safe)
+                for safe in sentence.known_safes():
+                    self.mark_safe(safe)
+                    break
             while(len(sentence.known_mines()) > 0):
-                mine = sentence.known_mines().pop()
-                self.mark_mine(mine)
-        # delete empty sentences
-        for sentence in self.knowledge:
-            if len(sentence.cells) == 0:
-                self.knowledge.remove(sentence)
-        # add new sentences if possible
+                for mine in sentence.known_mines():
+                    self.mark_mine(mine)
+                    break
+        # conclude new sentences if possible
         for set1 in self.knowledge:
             for set2 in self.knowledge:
                 if not (set1.cells == set2.cells and set1.count == set2.count):
                     if set1.cells.issubset(set2.cells):
                         if len(set1.cells) > 0 and len(set2.cells) > 0 and set2.count - set1.count >= 0:
-                            self.knowledge.append(Sentence(set2.cells.difference(set1.cells), set2.count - set1.count))
+                            check = 0
+                            for sent in self.knowledge:
+                                if set2.cells.difference(set1.cells) == sent.cells:
+                                    check = 1
+                            if check == 0:
+                                self.knowledge.append(Sentence(set2.cells.difference(set1.cells), set2.count - set1.count))
         
     def make_safe_move(self):
         """
