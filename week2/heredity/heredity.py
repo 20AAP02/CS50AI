@@ -139,6 +139,18 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
+    one = dict()
+    for person in people:
+        p = 0
+        if people[person]["father"] == None:
+            p = PROBS["gene"][1]
+        else:
+            p = 
+        one[person] = p
+
+    two = dict()
+
+    trait = dict()
     
 
 
