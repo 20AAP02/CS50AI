@@ -1,5 +1,6 @@
 import csv
 import itertools
+from operator import ge
 import sys
 
 PROBS = {
@@ -139,20 +140,47 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    one = dict()
+    genes = dict()
     for person in people:
-        p = 0
-        if people[person]["father"] == None:
-            p = PROBS["gene"][1]
+        if person in one_gene:
+            genes[person] = 1
+        elif person in two_genes:
+            genes[person] = 2
         else:
-            p = 
-        one[person] = p
-
-    two = dict()
-
-    trait = dict()
+            genes[person] = 0
     
+    parent_prob = [0.01, 0.5, 0.99]
 
+    gene_prob = dict()
+    for person in people:
+        if people[person]["father"] == None:
+            gene_prob[person] = PROBS["gene"][genes[person]]
+        else:
+            m_prob = parent_prob[genes[people[person]["mother"]]]
+            f_prob = parent_prob[genes[people[person]["father"]]]
+            if genes[person] == 0:
+                gene_prob[person] = (1 - f_prob) * (1 - m_prob)
+            elif genes[person] == 1:
+                gene_prob[person] = m_prob * (1 - f_prob) + f_prob * (1 - m_prob)
+            else:
+                gene_prob[person] = m_prob * f_prob
+    
+    trait_prob = dict()
+    for person in people:
+        if person not in have_trait:
+            trait_prob[person] = PROBS["trait"][genes[person]][False]
+        else:
+            trait_prob[person] = PROBS["trait"][genes[person]][True]
+    
+    prob = list()
+    for person in people:
+        prob.append(gene_prob[person] * trait_prob[person])
+    
+    joint = 1
+    for p in prob:
+        joint *= p
+    
+    return joint
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
     """
