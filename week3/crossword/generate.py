@@ -1,5 +1,6 @@
 import sys
 from typing import overload
+from unittest import result
 
 from numpy import sort
 
@@ -103,7 +104,8 @@ class CrosswordCreator():
          constraints; in this case, the length of the word.)
         """
         for var in self.crossword.variables:
-            for word in self.domains[var]:
+            lst = list(self.domains[var])
+            for word in lst:
                 if len(word) != var.length:
                     self.domains[var].remove(word)
 
@@ -121,7 +123,8 @@ class CrosswordCreator():
             return False
         
         revised = False
-        for word in self.domains[x]:
+        lst = list(self.domains[x])
+        for word in lst:
             check = 0
             for w in self.domains[y]:
                 if word[overlap[0]] == w[overlap[1]]:
@@ -143,6 +146,7 @@ class CrosswordCreator():
         return False if one or more domains end up empty.
         """
         if arcs == None:
+            arcs = list()
             for x in self.crossword.variables:
                 for y in self.crossword.variables:
                     if x != y:
@@ -181,7 +185,7 @@ class CrosswordCreator():
         for var in assignment:
 
             # Check variable lenght
-            if len(assignment[var]) != self.crossword.variables[var].length:
+            if len(assignment[var]) != var.length:
                 return False
             
             # Check conflicts between neighboring variables
@@ -231,8 +235,9 @@ class CrosswordCreator():
         return values.
         """
         vars = list(self.crossword.variables)
-        for v in vars:
-            if v in assignment and assignment[v] != None:
+        vars2 = list(vars)
+        for v in vars2:
+            if v in assignment:
                 vars.remove(v)
         
         var = (vars[0], len(self.domains[vars[0]]))
@@ -265,15 +270,15 @@ class CrosswordCreator():
         if self.assignment_complete(assignment):
             return assignment
         var = self.select_unassigned_variable(assignment)
-        for value in self.domains[var]:
+        values = self.order_domain_values(var, assignment)
+        for value in values:
             assignment[var] = value
-            result = self.backtrack(assignment)
             if self.consistent(assignment):
-                return result
+                result = self.backtrack(assignment)
+                if result != None:
+                    return result
             assignment.pop(var)
         return None
-
-
 
 def main():
 
