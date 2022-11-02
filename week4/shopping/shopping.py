@@ -1,4 +1,5 @@
 from cProfile import label
+from cmath import log10
 import csv
 from datetime import datetime
 import sys
@@ -117,8 +118,22 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
-
+    pos_len = 0
+    neg_len = 0
+    pos_right = 0
+    neg_right = 0
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            pos_len += 1
+            if labels[i] == predictions[i]:
+                pos_right += 1
+        else:
+            neg_len += 1
+            if labels[i] == predictions[i]:
+                neg_right += 1
+    sensitivity = pos_right / pos_len
+    specificity = neg_right / neg_len
+    return ((sensitivity, specificity))
 
 if __name__ == "__main__":
     main()
