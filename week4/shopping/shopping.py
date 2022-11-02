@@ -1,4 +1,6 @@
+from cProfile import label
 import csv
+from datetime import datetime
 import sys
 
 from sklearn.model_selection import train_test_split
@@ -59,7 +61,37 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    evidence = list()
+    labels = list()
+    with open(filename, 'r') as file:
+        next(file)
+        csvreader = csv.reader(file)
+        for row in csvreader:
+            ev_values = row[:-1]
+            for i in range(len(ev_values)):
+                # Convert string numbers to int
+                if i in [0, 2, 4, 11, 12, 13, 14]:
+                    ev_values[i] = int(ev_values[i])
+                # Turn mounth in int
+                if i == 10:
+                    if ev_values[i] == 'June':
+                        ev_values[i] = 5
+                    else:
+                        ev_values[i] = int(datetime.strptime(ev_values[i], "%b").month) - 1
+                # Converting Visitor type in to int
+                if i == 15:
+                    ev_values[i] = int(ev_values[i] == 'Returning_Visitor')
+                # Converting Weekend in to int
+                if i == 16:
+                    ev_values[i] = int(ev_values[i] == 'TRUE')
+                # Convert string numbers in float
+                if i in [1, 3, 5, 6, 7, 8, 9]:
+                    ev_values[i] = float(ev_values[i])
+            evidence.append(ev_values)
+            # Add to labels the revenue
+            labels.append(int(row.pop().lower() == 'true'))
+    return ((evidence, labels))
+
 
 
 def train_model(evidence, labels):
