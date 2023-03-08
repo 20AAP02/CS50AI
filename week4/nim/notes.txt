@@ -6,6 +6,7 @@ Algorithm to use:
 
 (state, action)
 - state: current size of all piles (ex: [1, 1, 3, 5])
+	in self.q, state has to be a tuple
 - action: pair of integers, (i, j) : take 'j' objects from pile 'i'
 
 Every time we are in state 's' and take an action 'a', we can update the Q-value 'Q(s, a)':
@@ -16,5 +17,4 @@ old value estimate = existing value for 'Q(s, a)'
 
 NimAI
 self.q = {(state, action)  : number; (state, action)  : number}
-state = tuple()
 ( ex: self.q[(0, 0, 0, 2), (3, 2)] = -1 )
